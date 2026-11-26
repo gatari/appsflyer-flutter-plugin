@@ -495,16 +495,20 @@ public class AppsflyerSdkPlugin: NSObject, FlutterPlugin, FlutterStreamHandler {
 
 extension AppsflyerSdkPlugin {
 
+    // Returns true: `FlutterPlugin` defines NO here as vetoing the launch. Under UIScene the engine
+    // calls this from `sceneWillConnectFallback:` for plugins that do not conform to
+    // `FlutterSceneLifeCycleDelegate`, and a NO marks the launch URL as handled, so Flutter's own
+    // deep linking never receives a cold-start URL.
     @objc(application:didFinishLaunchingWithOptions:)
     public func application(_ application: UIApplication,
                             didFinishLaunchingWithOptions launchOptions: [AnyHashable: Any]) -> Bool {
         guard !launchOptions.isEmpty else {
-            return false
+            return true
         }
         // Not routed through the RPC bridge: the SDK reads only the `NSUserActivity` under
         // `UIApplicationLaunchOptionsUserActivityDictionaryKey`, which no JSON envelope can carry.
         AppsFlyerLib.shared().handleLaunchOptions(launchOptions)
-        return false
+        return true
     }
 
     // Spelled with the protocol's own Swift name (`open:`) because Objective-C selector
